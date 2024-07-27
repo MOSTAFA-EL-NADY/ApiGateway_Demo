@@ -1,0 +1,84 @@
+{
+  "Routes": [
+    {
+      "UpstreamHttpMethod": [ "Put", "Delete", "Get" ],
+      "UpstreamPathTemplate": "/gateway/students",
+      "DownstreamPathTemplate": "/api/students",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7116
+        }
+      ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "9s",
+        "PeriodTimespan": 5,
+        "Limit": 5,
+        "ClientWhitelist": []
+      },
+
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 9000,
+        "TimeoutValue": 5000
+      },
+      "FileCacheOptions": {
+        "TtlSeconds": 5,
+        "Region": "student_service",
+        "EnableContentHashing": false // my route has GET verb only, assigning 'true' for requests with body: POST, PUT etc.
+      },
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "student.read"
+        ]
+      },
+      "key": "student-details"
+
+    },
+
+
+    {
+      "UpstreamHttpMethod": [ "Put", "Delete", "Get" ],
+      "UpstreamPathTemplate": "/gateway/departments",
+      "DownstreamPathTemplate": "/api/departments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7278
+        }
+
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "department.read"
+        ]
+      },
+      "key": "department-details"
+    }
+
+  ],
+  "Aggregates": [
+    {
+      "UpstreamPathTemplate": "/custome-agg",
+      "RouteKeys": [ "student-details", "department-details" ],
+      "Aggregator": "CustomeAggregator"
+
+    },
+    {
+      "UpstreamPathTemplate": "/agg",
+      "RouteKeys": [ "student-details", "department-details" ]
+    
+
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7281"
+
+  },
+ 
+}
